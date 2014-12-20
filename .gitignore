@@ -45,3 +45,4 @@ Temporary Items
 ADS1_Testbench_Filter.cr.mti
 ADS1_Testbench_Filter.mpf
 work/_info
+*.bak
