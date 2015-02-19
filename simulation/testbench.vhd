@@ -25,7 +25,24 @@ ARCHITECTURE behavior OF testbench IS
 		    result		: OUT	std_logic_vector(31 downto 0);
 		    valid		: OUT	std_logic
  		);
+<<<<<<< HEAD
     END COMPONENT;    
+=======
+    END COMPONENT;
+    
+    COMPONENT Converter
+	 Port ( 
+	      clk : IN std_ulogic;
+			rst : IN std_ulogic;
+			opr	: IN std_ulogic;
+			enable : IN std_ulogic;
+			to_convert : IN std_logic_vector(31 downto 0);
+			valid_result : INOUT std_ulogic;
+			result : OUT std_logic_vector(31 downto 0)
+ 		);
+    END COMPONENT;
+    
+>>>>>>> origin/master
 
    --Inputs   
 	 signal CLK			: std_logic;
@@ -38,9 +55,22 @@ ARCHITECTURE behavior OF testbench IS
 	signal valid		: std_logic;
 	
 	--Dummy signals
+<<<<<<< HEAD
 	signal to_convert : std_logic_vector(31 downto 0);
 	signal t_result   : std_logic_vector(31 downto 0);
 	signal converted  : real;		
+=======
+	signal int : integer;
+	signal flt : float32;
+	signal rst : std_logic;
+	signal opr : std_logic;
+	signal to_convert : std_logic_vector(31 downto 0);
+	signal valid_result : std_logic;
+	signal t_result : std_logic_vector(31 downto 0);
+	signal t_enable : std_ulogic;
+	
+		
+>>>>>>> origin/master
 
    -- Clock period definitions
    constant clk_period : time := 10 ns;
@@ -68,7 +98,23 @@ BEGIN
 		    operand => operand,
 		    result => result,
 		    valid	=> valid
+<<<<<<< HEAD
 	     );  
+=======
+	     );
+   -- Instantiate converter unit
+    cvt: converter
+	   PORT MAP (
+	   CLK => clk,
+	   rst => rst,	   
+	   opr => opr,
+	   t_enable => enable,
+	   to_convert => to_convert,
+	   valid_result => valid_result,
+	   t_result => result);
+	   
+	  
+>>>>>>> origin/master
 	   
    -- Clock process definitions
    clk_process :process
