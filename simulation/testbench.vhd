@@ -101,15 +101,18 @@ BEGIN
 		else
 			to_convert(31) <= '0';
 		end if;
-	   
+		-- This case deals with NaN-s, we have used the number (2.0)**(130), which is out of range, to signal a NaN
+	        if(dec = ((2.0)**(130))) then 
+			to_convert(30 downto 23) <= (others => '1');
+			to_convert(22 downto 0) <= (others => '1');
 		-- This case deals with the denormalized numbers that absolute value is too large. > ±2^128
-		if(dec >= pos_inf or dec <= neg_inf) then--  if(dec > (real(2**127) * max_n_m) or dec < (real(-2**-126) * min_d_m)) then
+		elsif(dec >= pos_inf or dec <= neg_inf) then--  if(dec > (real(2**127) * max_n_m) or dec < (real(-2**-126) * min_d_m)) then
 			to_convert(30 downto 23) <= (others => '1');
 			to_convert(22 downto 0) <= (others => '0');
 		-- This case deals with the denormalized numbers that absolute value is too small. < ±2^-126.
 		elsif(dec = 0.0 or abs(dec) <= max_d_m) then
 			to_convert(30 downto 23) <= (others => '0');
-			to_convert(22 downto 0) <= std_logic_vector(to_unsigned(integer(floor(abs(dec)/max_d_m)*(2.0**23)), 23));			
+			to_convert(22 downto 0) <= std_logic_vector(to_unsigned(integer(abs(dec)/max_d_m*(2.0**23)), 23));			
 		-- This case deals with the normalized numbers.
 		else
 			to_convert(30 downto 23) <= std_logic_vector(to_unsigned((integer(floor(log2(abs(dec)))) + 127), 8));
@@ -160,10 +163,11 @@ BEGIN
 			when 4 =>  dec<= 0.1;
 			when 5 =>  dec<= -0.1;
 			when 6 =>  dec<= 0.0;
-			when 7 =>  dec<= 0.17 * ((2.0)**(-126));
-			when 8 =>  dec<= (-0.17) * ((2.0)**(-126));  
+			when 7 =>  dec<=-((2.0)**(-149));
+			when 8 =>  dec<= ((2.0)**(-149));  
 			when 9 =>  dec<= 3.0;
 			when 10 =>  dec<= -3.0;
+			when 11 =>  dec<= 12567.2568;
 		   when others => wait;
 		end case ;
   
