@@ -49,8 +49,8 @@ ARCHITECTURE behavior OF testbench IS
    constant max_n_m : real := 1.9999998807907104; --(2.0)**(128);
    constant min_n_m : real := 1.0000001192092896; --(-2.0)**(128);
    constant max_d_m : real := (2.0)**(-126); --0.9999998807907104;
-   constant min_d_m : real := (-2.0)**(-126); --0.0000001192092896;
-   constant neg_inf : real := -2.0**128;
+   constant min_d_m : real := -(2.0**(-126)); --0.0000001192092896;
+   constant neg_inf : real := -(2.0**128);
    constant pos_inf : real := 2.0**128;
    --variable to be converted:  
    signal dec : real := 1.257;
@@ -158,16 +158,28 @@ BEGIN
      --Changing the stimulus 
 	  case cnt is
 			when 1 =>  dec<= -1.275;
+			-- values near normalised range border:
 			when 2 =>  dec<= pos_inf;
 			when 3 =>  dec<= neg_inf;
+                        -- other cases:
 			when 4 =>  dec<= 0.1;
 			when 5 =>  dec<= -0.1;
+                        -- zero:
 			when 6 =>  dec<= 0.0;
-			when 7 =>  dec<=-((2.0)**(-149));
-			when 8 =>  dec<= ((2.0)**(-149));  
-			when 9 =>  dec<= 3.0;
-			when 10 =>  dec<= -3.0;
-			when 11 =>  dec<= 12567.2568;
+			-- denormalized nr:
+			when 7 =>  dec<= -0.17 * ((2.0)**(-126));
+			when 8 =>  dec<= 0.17 * ((2.0)**(-126)); 
+                        when 9 =>  dec<= (2.0)**(-149); --upper limit
+			when 10 =>  dec<= -((2.0)**(-149)); -- lower limit
+                        -- other random nr.
+			when 11 =>  dec<= 3.0;
+			when 12 =>  dec<= -3.0;
+			when 13 =>  dec<= 12567.2568;
+                        -- signaling NaN
+                        when 14 =>  dec<= (2.0)**(130);
+			-- values for both infinities for number which abs(nr) > 2**128 :
+                        when 15 =>  dec<= 1.1 * (2.0**128);
+                        when 16 =>  dec<= -1.1 * (2.0**128);
 		   when others => wait;
 		end case ;
   
