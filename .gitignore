@@ -46,3 +46,9 @@ ADS1_Testbench_Filter.cr.mti
 ADS1_Testbench_Filter.mpf
 work/_info
 *.bak
+vsim.wlf
+work/_lib.qdb
+work/_vmake
+work/_lib1_0.qtl
+work/_lib1_0.qdb
+work/_lib1_0.qpg
