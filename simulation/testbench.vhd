@@ -109,10 +109,10 @@ BEGIN
 		-- This case deals with the denormalized numbers that absolute value is too small. < ±2^-126.
 		elsif(dec = 0.0 or abs(dec) <= max_d_m) then
 			to_convert(30 downto 23) <= (others => '0');
-			to_convert(22 downto 0) <= std_logic_vector(to_unsigned(integer((abs(dec)/max_d_m)*(2.0**23)), 23));			
+			to_convert(22 downto 0) <= std_logic_vector(to_unsigned(integer(floor(abs(dec)/max_d_m)*(2.0**23)), 23));			
 		-- This case deals with the normalized numbers.
 		else
-			to_convert(30 downto 23) <= std_logic_vector(to_unsigned((integer(log2(abs(dec))) + 127), 8));
+			to_convert(30 downto 23) <= std_logic_vector(to_unsigned((integer(floor(log2(abs(dec)))) + 127), 8));
 			to_convert(22 downto 0) <= std_logic_vector(to_unsigned(integer(((abs(dec)/(2.0**integer(floor(log2(abs(dec)))))) - 1.0)*(2.0**23)), 23));
 		end if;
      
@@ -157,11 +157,13 @@ BEGIN
 			when 1 =>  dec<= -1.275;
 			when 2 =>  dec<= pos_inf;
 			when 3 =>  dec<= neg_inf;
-			when 4 =>  dec<= 5.5;
-			when 5 =>  dec<= -5.5;
+			when 4 =>  dec<= 0.1;
+			when 5 =>  dec<= -0.1;
 			when 6 =>  dec<= 0.0;
 			when 7 =>  dec<= 0.17 * ((2.0)**(-126));
-			when 8 =>  dec<= (-0.17) * ((2.0)**(-126));            
+			when 8 =>  dec<= (-0.17) * ((2.0)**(-126));  
+			when 9 =>  dec<= 3.0;
+			when 10 =>  dec<= -3.0;
 		   when others => wait;
 		end case ;
   
