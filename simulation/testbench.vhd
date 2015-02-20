@@ -37,6 +37,8 @@ ARCHITECTURE behavior OF testbench IS
 		end if;
 
 	END exponent;
+	
+	
    --Inputs   
 	 signal CLK			: std_logic;
 	 signal enable		: std_logic;
@@ -56,10 +58,10 @@ ARCHITECTURE behavior OF testbench IS
    constant clk_period : time := 10 ns;
    
    --Constant defitions for limits with normalized and denormalized numbers.
-   constant max_n_m : real := 1.9999998807907104; --(2.0)**(128);
-   constant min_n_m : real := 1.0000001192092896; --(-2.0)**(128);
-   constant max_d_m : real := (2.0)**(-126); --0.9999998807907104;
-   constant min_d_m : real := -(2.0**(-126)); --0.0000001192092896;
+   constant NaN : real := 2.0**130;					--max_n_m : real := 1.9999998807907104; --(2.0)**(128);
+   constant neg_zero : real := -(2.0**(-150));  		--min_n_m : real := 1.0000001192092896; --(-2.0)**(128);
+   constant max_d_m : real := (2.0)**(-126); 		--0.9999998807907104;
+   constant min_d_m : real := -(2.0**(-126)); 		--0.0000001192092896;
    constant neg_inf : real := -(2.0**128);
    constant pos_inf : real := 2.0**128;
    --variable to be converted:  
@@ -102,7 +104,7 @@ BEGIN
 		-- if abs(dec) > max_d_m then --/= 0.0 then
 			-- pre_mantissa <= abs(8.0)/(2.0**integer(floor(log2(abs(8.0)))));
 			-- powi <= integer(exponent(8.0));
-			-- powr <= exponent(64.0);
+			
 		-- else
 			-- pre_mantissa <= abs(dec)/max_d_m;
 		-- end if;
@@ -115,8 +117,11 @@ BEGIN
 		else
 			to_convert(31) <= '0';
 		end if;
-		-- This case deals with NaN-s, we have used the number (2.0)**(130), which is out of range, to signal a NaN
-	        if(dec = ((2.0)**(130))) then 
+		-- This case deals with negative zero, we have used the constant neg_zero = -(2.0**150), to signal -0
+		if (dec = neg_zero) then
+			to_convert(30 downto 0) <= (others => '0');
+		-- This case deals with NaN-s, we have used the constant NaN = (2.0)**(130), which is out of range, to signal a NaN
+	    elsif(dec = NaN) then 
 			to_convert(30 downto 23) <= (others => '1');
 			to_convert(22 downto 0) <= (others => '1');
 		-- This case deals with the denormalized numbers that absolute value is too large. > ±2^128
@@ -189,14 +194,16 @@ BEGIN
             when 9 =>  dec<= (2.0)**(-149); --upper limit
 			when 10 =>  dec<= -((2.0)**(-149)); -- lower limit
             -- other random nr.
-			when 11 =>  dec<= 15.0;
-			when 12 =>  dec<= -32.0;
-			when 13 =>  dec<= 16.0;
+			when 11 =>  dec<= 31.31;
+			when 12 =>  dec<= -64.2558;
+			when 13 =>  dec<= 128.0;
             -- signaling NaN
-            when 14 =>  dec<= (2.0)**(130);
+            when 14 =>  dec<= NaN;
 			-- values for both infinities for number which abs(nr) > 2**128 :
-            when 15 =>  dec<= 8.0;
-            when 16 =>  dec<= -4.0;
+            when 15 =>  dec<= 1.1 * (2.0**128);
+            when 16 =>  dec<= -1.1 * (2.0**128);
+			-- negative zero:
+			when 17 =>  dec<= neg_zero;
 		   when others => wait;
 		end case ;
   
