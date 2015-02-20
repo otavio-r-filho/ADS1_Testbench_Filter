@@ -30,10 +30,10 @@ ARCHITECTURE behavior OF testbench IS
     
     FUNCTION exponent (X : real) return real is   -- returns the real exponent value
 	BEGIN
-		if (integer(X) rem 2) = 0 then -- if exponent == integer number then we don't need to use floor()
-			return log2(abs(X));
-		else
+	    if abs(X) < 1.0 or (integer(X) rem 2) /= 0  then
 			return floor(log2(abs(X))); 
+		else
+			return log2(abs(X));-- if exponent == integer number then we don't need to use floor()
 		end if;
 
 	END exponent;
