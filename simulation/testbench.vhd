@@ -8,10 +8,11 @@ USE ieee.MATH_REAL.ALL;
 
 
 
-
 ENTITY testbench IS
 END testbench;
- 
+
+
+
 ARCHITECTURE behavior OF testbench IS 
  
     -- Component Declaration for the Unit Under Test (UUT)
@@ -26,7 +27,16 @@ ARCHITECTURE behavior OF testbench IS
 		    valid		: OUT	std_logic
  		);
     END COMPONENT;    
+    
+    FUNCTION exponent (X : real) return real is   -- returns the real exponent value
+	BEGIN
+		if (integer(X) rem 2) = 0 then -- if exponent == integer number then we don't need to use floor()
+			return log2(abs(X));
+		else
+			return floor(log2(abs(X))); 
+		end if;
 
+	END exponent;
    --Inputs   
 	 signal CLK			: std_logic;
 	 signal enable		: std_logic;
@@ -55,8 +65,10 @@ ARCHITECTURE behavior OF testbench IS
    --variable to be converted:  
    signal dec : real := 1.257;
    signal cnt : integer := 1;
-
-   --signal pre_mantissa : real;
+   
+   -- signal powi : integer;
+   -- signal powr : real;
+   -- signal pre_mantissa : real;
 BEGIN
  
 	-- Instantiate the Unit Under Test (UUT)
@@ -86,9 +98,11 @@ BEGIN
 		enable <= '0';
 		edge <= '1';
 		wait for clk_period;
-    
+        
 		-- if abs(dec) > max_d_m then --/= 0.0 then
-			-- pre_mantissa <= abs(dec)/(2.0**integer(floor(log2(abs(dec)))));
+			-- pre_mantissa <= abs(8.0)/(2.0**integer(floor(log2(abs(8.0)))));
+			-- powi <= integer(exponent(8.0));
+			-- powr <= exponent(64.0);
 		-- else
 			-- pre_mantissa <= abs(dec)/max_d_m;
 		-- end if;
@@ -112,13 +126,16 @@ BEGIN
 		-- This case deals with the denormalized numbers that absolute value is too small. < ±2^-126.
 		elsif(dec = 0.0 or abs(dec) <= max_d_m) then
 			to_convert(30 downto 23) <= (others => '0');
-			to_convert(22 downto 0) <= std_logic_vector(to_unsigned(integer(abs(dec)/max_d_m*(2.0**23)), 23));			
+			to_convert(22 downto 0) <= std_logic_vector(to_unsigned(integer(abs(dec)/max_d_m*(2.0**23)), 23));
+			
 		-- This case deals with the normalized numbers.
 		else
-			to_convert(30 downto 23) <= std_logic_vector(to_unsigned((integer(floor(log2(abs(dec)))) + 127), 8));
-			to_convert(22 downto 0) <= std_logic_vector(to_unsigned(integer(((abs(dec)/(2.0**integer(floor(log2(abs(dec)))))) - 1.0)*(2.0**23)), 23));
+			to_convert(30 downto 23) <= std_logic_vector(to_unsigned((integer(exponent(dec)) + 127), 8));
+			to_convert(22 downto 0) <= std_logic_vector(to_unsigned(integer(((abs(dec)/(2.0**integer(exponent(dec)))) - 1.0)*(2.0**23)), 23));
+			
 		end if;
-     
+		
+
 
       -- pass the converted value to the dummy module:
       wait for 1*clk_period;
@@ -161,25 +178,25 @@ BEGIN
 			-- values near normalised range border:
 			when 2 =>  dec<= pos_inf;
 			when 3 =>  dec<= neg_inf;
-                        -- other cases:
+            -- other cases:
 			when 4 =>  dec<= 0.1;
 			when 5 =>  dec<= -0.1;
-                        -- zero:
+            -- zero:
 			when 6 =>  dec<= 0.0;
 			-- denormalized nr:
 			when 7 =>  dec<= -0.17 * ((2.0)**(-126));
 			when 8 =>  dec<= 0.17 * ((2.0)**(-126)); 
-                        when 9 =>  dec<= (2.0)**(-149); --upper limit
+            when 9 =>  dec<= (2.0)**(-149); --upper limit
 			when 10 =>  dec<= -((2.0)**(-149)); -- lower limit
-                        -- other random nr.
-			when 11 =>  dec<= 3.0;
-			when 12 =>  dec<= -3.0;
-			when 13 =>  dec<= 12567.2568;
-                        -- signaling NaN
-                        when 14 =>  dec<= (2.0)**(130);
+            -- other random nr.
+			when 11 =>  dec<= 15.0;
+			when 12 =>  dec<= -32.0;
+			when 13 =>  dec<= 16.0;
+            -- signaling NaN
+            when 14 =>  dec<= (2.0)**(130);
 			-- values for both infinities for number which abs(nr) > 2**128 :
-                        when 15 =>  dec<= 1.1 * (2.0**128);
-                        when 16 =>  dec<= -1.1 * (2.0**128);
+            when 15 =>  dec<= 8.0;
+            when 16 =>  dec<= -4.0;
 		   when others => wait;
 		end case ;
   
